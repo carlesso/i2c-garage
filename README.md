@@ -3,13 +3,20 @@ Simple add-on to communicate via `i2c` with a relay board via mqtt.
 
 This was developed for my needs, feel free to check it out!
 
+**NOTE:** This addon needs to run with "Protection mode" turned off to access `/dev/i2c-1`.
+
 ## Notes
 Board used: https://wiki.seeedstudio.com/Raspberry_Pi_Relay_Board_v1.0/
+
 How to enable `i2c` on home assistant: https://community.home-assistant.io/t/add-on-hassos-i2c-configurator/264167
+
 MQTT endpoint can be seen on the mqtt integration (I'm using [Mosquitto broker](https://github.com/home-assistant/addons/tree/master/mosquitto)).
 
 I attached the board directly on my raspberry running home assistant.
+
+
 Worth knowing some details about [MQTT QOS](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901103).
+
 There are three possbile values:
 * `0`: At most once delivery
 * `1`: At least once delivery
