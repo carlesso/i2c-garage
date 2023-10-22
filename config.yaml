@@ -1,0 +1,20 @@
+name: "i2c Garage"
+description: "Simple interface to i2c to open my garage via mqtt"
+version: "2.0.2"
+slug: "i2c-garage"
+init: false
+# Full access is required to interact with i2c devices
+full_access: true
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+# Username and password of mqtt
+options:
+  username:
+  password:
+schema:
+  username: str
+  password: str
