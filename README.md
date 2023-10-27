@@ -48,3 +48,22 @@ This is what I was simply doing during development.
 ```bash
 scp config.yaml Dockerfile i2c-garage.py ha:/addons/i2c-garage/
 ```
+
+## Notes
+Being my first addon, I struggled with a bunch of new-be problems. The biggest one being I wasn't able to get
+the `SUPERVISOR_TOKEN` in my environment. After lot of digging I realized your app is supposed to be called
+from the `#!/usr/bin/with-contenv` env.
+
+In my case, being just a simple python script, I set the shebang of my script to
+```
+#!/usr/bin/with-contenv python
+```
+
+And, rather than having `CMD [ "python3", "/i2c-garage.py" ]` in my `Dockerfile` I made executed the script directly
+after making it executable:
+```Dockefile
+COPY i2c-garage.py /
+
+RUN chmod a+x ./i2c-garage.py
+CMD [ "./i2c-garage.py" ]
+```

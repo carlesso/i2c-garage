@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/with-contenv python
 
-import json
 import logging
+import requests
 import sys
 
 from os import environ
@@ -10,8 +10,8 @@ from time import sleep
 import paho.mqtt.client as mqtt
 
 
-MQTT_SERVER = "core-mosquitto"
-MQTT_PORT = 1883
+# MQTT_SERVER = "core-mosquitto"
+# MQTT_PORT = 1883
 
 
 # Setup logs. Note only logs to stderr will show up in HomeAssistant Log tab
@@ -23,10 +23,21 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
+# Load MQTT information from Supervisor API
+headers = {
+    "Authorization": f"Bearer {environ['SUPERVISOR_TOKEN']}",
+    "content-type": "application/json",
+}
+response = requests.get("http://supervisor/services/mqtt", headers=headers)
+data = response.json().get("data")
+if not data:
+    raise RuntimeError(f"Unable to fetch MQTT data from Supervisor API. Response: {response.content}")
+
+
 # Simulate pressing the button of the remote by turning on the relay, waiting .3 seconds, and turning it off
 def toggle_remote():
     with SMBus(1) as bus:
-        bus.write_byte_data(0x20, 0x06, 0xFD)
+        bus.write_byte_data(0x20, 0x06, 0xFE)
         sleep(0.3)
         bus.write_byte_data(0x20, 0x06, 0xFF)
 
@@ -46,23 +57,15 @@ def on_message(client, userdata, msg):
     toggle_remote()
 
 
-# Load username and password from the options.json file, and check we have them
-with open("/data/options.json", "r") as options_file:
-    options: dict[str, str] = json.loads(options_file.read())
-if "username" not in options or "password" not in options:
-    raise RuntimeError(
-        "Both username and password need to be set in the configuration tab"
-    )
-
 # Creates the main client for MQTT, setting the callbacks and the credentials
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
-client.username_pw_set(username=options["username"], password=options["password"])
+client.username_pw_set(username=data["username"], password=data["password"])
 
-logger.info(f"Connecting to {MQTT_SERVER}:{MQTT_PORT} and starting the daemon.")
+logger.info(f"Connecting to {data['host']}:{data['port']} and starting the daemon.")
 # Connect to the server
-client.connect(host=MQTT_SERVER, port=1883, keepalive=60)
+client.connect(host=data['host'], port=data['port'], keepalive=60)
 
 # Runs the loop forever
 client.loop_forever()
