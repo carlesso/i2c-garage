@@ -31,15 +31,17 @@ headers = {
 response = requests.get("http://supervisor/services/mqtt", headers=headers)
 data = response.json().get("data")
 if not data:
-    raise RuntimeError(f"Unable to fetch MQTT data from Supervisor API. Response: {response.content}")
+    raise RuntimeError(
+        f"Unable to fetch MQTT data from Supervisor API. Response: {response.content}"
+    )
 
 
 # Simulate pressing the button of the remote by turning on the relay, waiting .3 seconds, and turning it off
 def toggle_remote():
-    with Serial("/dev/ttyUSB0") as s:
-        s.write([0xa0, 0x01, 0x01, 0xa2])
+    with Serial("/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0") as s:
+        s.write([0xA0, 0x01, 0x01, 0xA2])
         sleep(0.3)
-        s.write([0xa0, 0x01, 0x00, 0xa1])
+        s.write([0xA0, 0x01, 0x00, 0xA1])
 
 
 # Callback for successful connection to MQTT
@@ -65,7 +67,7 @@ client.username_pw_set(username=data["username"], password=data["password"])
 
 logger.info(f"Connecting to {data['host']}:{data['port']} and starting the daemon.")
 # Connect to the server
-client.connect(host=data['host'], port=data['port'], keepalive=60)
+client.connect(host=data["host"], port=data["port"], keepalive=60)
 
 # Runs the loop forever
 client.loop_forever()
