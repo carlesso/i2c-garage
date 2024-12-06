@@ -1,6 +1,6 @@
 name: "i2c Garage"
 description: "Simple interface to i2c to open my garage via mqtt"
-version: "3.0.0"
+version: "3.0.3"
 slug: "i2c-garage"
 init: false
 # Full access is required to interact with i2c devices

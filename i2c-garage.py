@@ -5,7 +5,7 @@ import requests
 import sys
 
 from os import environ
-from smbus2 import SMBus
+from serial import Serial
 from time import sleep
 import paho.mqtt.client as mqtt
 
@@ -36,10 +36,10 @@ if not data:
 
 # Simulate pressing the button of the remote by turning on the relay, waiting .3 seconds, and turning it off
 def toggle_remote():
-    with SMBus(1) as bus:
-        bus.write_byte_data(0x20, 0x06, 0xFE)
+    with Serial("/dev/ttyUSB0") as s:
+        s.write([0xa0, 0x01, 0x01, 0xa2])
         sleep(0.3)
-        bus.write_byte_data(0x20, 0x06, 0xFF)
+        s.write([0xa0, 0x01, 0x00, 0xa1])
 
 
 # Callback for successful connection to MQTT
